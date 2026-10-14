@@ -154,7 +154,7 @@ export default function LeadCaptureForm() {
             {errors.service && <span className={styles.fieldError} id={`${inputId("service")}-error`}>{errors.service}</span>}
           </div>
           <div className={styles.field}>
-            <label htmlFor={inputId("budget")}><span className={styles.labelIcon} aria-hidden="true"><Wallet size={15} /></span>Monthly advertising budget <span aria-hidden="true">*</span></label>
+            <label htmlFor={inputId("budget")}><span className={styles.labelIcon} aria-hidden="true"><Wallet size={15} /></span>Monthly budget <span aria-hidden="true">*</span></label>
             <select id={inputId("budget")} name="budget" required value={form.budget}
               onChange={event => update("budget", event.target.value)} aria-invalid={Boolean(errors.budget)}
               aria-describedby={describedBy("budget")}>

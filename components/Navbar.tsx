@@ -74,10 +74,10 @@ export default function Navbar() {
           onClick={() => setOpen(false)}
         >
           <Image
-            src="/images/pandaece-logo.png"
+            src="/images/pandaece-logo-new.png"
             alt="PANDAeCe — Empower, Converge, Excel"
-            width={220}
-            height={70}
+            width={420}
+            height={110}
             priority
             className="brand-logo-image"
           />

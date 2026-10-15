@@ -5023,6 +5023,16 @@ body {
   color: #087b3b;
 }
 
+/* ── Heading-only overrides: remove italic/bold from these two specific lines ── */
+/* "Digital Marketing Partner That Understands Startups" */
+.about-section .section-heading .green-italic,
+/* "One Connected Growth System" */
+.services-section .section-heading .green-italic {
+  font-style: normal;
+  font-weight: 400;
+  font-family: Inter, Arial, sans-serif;
+}
+
 /* Startup Challenges section only */
 .problem-section .section-top {
   justify-content: flex-start;
@@ -8839,16 +8849,4 @@ select {
     box-sizing: border-box !important;
     padding: 0 22px 22px !important;
   }
-}
-
-/* Normal, clean, professional sans-serif typography for:
-   1. "Digital Marketing Partner That Understands Startups"
-   2. "One Connected Growth System" */
-.about-section .section-heading,
-.about-section .section-heading .green-italic,
-.services-section .section-heading .green-italic {
-  font-family: var(--font-inter), "Inter", Arial, sans-serif !important;
-  font-weight: 700 !important;
-  font-style: normal !important;
-  letter-spacing: normal !important;
 }

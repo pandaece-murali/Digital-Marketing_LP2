@@ -1,8 +1,9 @@
+
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const GHL_UPSERT_URL = "https://services.leadconnectorhq.com/contacts/upsert";
+const GHL_BASE_URL = "https://services.leadconnectorhq.com";
 
 const allowedServices = new Set([
   "Meta Ads",
@@ -27,18 +28,14 @@ const allowedGoals = new Set([
   "Automate follow-ups",
 ]);
 
-type LeadData = {
+type Lead = {
   name: string;
   phone: string;
   email: string;
   service: string;
-  services: string[];
   budget: string;
   goal: string;
-  websiteUrl?: string;
-  businessName?: string;
-  decisionMaker?: string;
-  website?: string;
+  website: string;
 };
 
 function errorResponse(message: string, status: number) {
@@ -55,6 +52,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isValidPhone(value: string) {
   const digits = value.replace(/\D/g, "");
+
   return (
     /^\+?[\d\s().-]+$/.test(value) &&
     digits.length >= 10 &&
@@ -62,79 +60,35 @@ function isValidPhone(value: string) {
   );
 }
 
-function extractServices(payload: Record<string, unknown>): string[] {
-  if (Array.isArray(payload.services)) {
-    return payload.services.filter(
-      (s): s is string => typeof s === "string" && s.trim().length > 0
-    );
-  }
-  if (Array.isArray(payload.service)) {
-    return payload.service.filter(
-      (s): s is string => typeof s === "string" && s.trim().length > 0
-    );
-  }
-  if (typeof payload.services === "string" && payload.services.trim().length > 0) {
-    return [payload.services.trim()];
-  }
-  if (typeof payload.service === "string" && payload.service.trim().length > 0) {
-    return [payload.service.trim()];
-  }
-  return [];
-}
-
-function isValidLead(value: unknown): value is Record<string, unknown> {
+function isValidLead(value: unknown): value is Lead {
   if (!isRecord(value)) return false;
 
-  const { name, phone, email, budget, goal, website } = value;
-  const services = extractServices(value);
+  const { name, phone, email, service, budget, goal, website } = value;
 
-  const isNameValid =
+  return (
     typeof name === "string" &&
     name.trim().length >= 2 &&
-    name.length <= 120;
-
-  const isPhoneValid =
+    name.length <= 100 &&
     typeof phone === "string" &&
     phone.length <= 24 &&
-    isValidPhone(phone.trim());
-
-  const isEmailValid =
+    isValidPhone(phone.trim()) &&
     typeof email === "string" &&
     email.length <= 254 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-
-  const areServicesValid =
-    services.length > 0 &&
-    services.every(
-      (s) => allowedServices.has(s) || (s.length >= 2 && s.length <= 100)
-    );
-
-  const isBudgetValid =
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim()) &&
+    typeof service === "string" &&
+    allowedServices.has(service) &&
     typeof budget === "string" &&
-    (allowedBudgets.has(budget) || (budget.length >= 2 && budget.length <= 100));
-
-  const isGoalValid =
+    allowedBudgets.has(budget) &&
     typeof goal === "string" &&
-    (allowedGoals.has(goal) || (goal.length >= 2 && goal.length <= 200));
-
-  const isWebsiteValid =
-    website === undefined ||
-    website === null ||
-    (typeof website === "string" && website.length <= 500);
-
-  return Boolean(
-    isNameValid &&
-      isPhoneValid &&
-      isEmailValid &&
-      areServicesValid &&
-      isBudgetValid &&
-      isGoalValid &&
-      isWebsiteValid
+    allowedGoals.has(goal) &&
+    typeof website === "string" &&
+    website.length <= 500
   );
 }
 
 function isSameOrigin(request: NextRequest) {
   const origin = request.headers.get("origin");
+
   if (!origin) return true;
 
   try {
@@ -144,7 +98,8 @@ function isSameOrigin(request: NextRequest) {
       ?.split(",")[0]
       ?.trim();
 
-    const requestHost = forwardedHost || request.headers.get("host");
+    const requestHost =
+      forwardedHost || request.headers.get("host");
 
     return Boolean(
       requestHost &&
@@ -155,6 +110,99 @@ function isSameOrigin(request: NextRequest) {
   }
 }
 
+// Automatically create a tag in the GHL location.
+// If the tag already exists, GHL may reject the duplicate;
+// the contact-tag step below will still be attempted.
+async function createGhlTag(
+  tagName: string,
+  token: string,
+  locationId: string
+) {
+  const response = await fetch(
+    `${GHL_BASE_URL}/locations/${locationId}/tags`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Version: "v3",
+      },
+      body: JSON.stringify({ name: tagName }),
+      signal: AbortSignal.timeout(8000),
+    }
+  );
+
+  if (response.ok) {
+    return;
+  }
+
+  const details = await response.text();
+
+  // Do not stop a lead submission just because a tag
+  // could not be created. Log the actual API error.
+  console.error(
+    `GHL tag creation failed for "${tagName}":`,
+    response.status,
+    details
+  );
+}
+
+// Apply tags to the created or updated contact.
+async function applyGhlTags(
+  contactId: string,
+  tags: string[],
+  token: string
+) {
+  const response = await fetch(
+    `${GHL_BASE_URL}/contacts/${contactId}/tags`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Version: "v3",
+      },
+      body: JSON.stringify({ tags }),
+      signal: AbortSignal.timeout(8000),
+    }
+  );
+
+  if (!response.ok) {
+    const details = await response.text();
+
+    console.error(
+      "GHL contact tag application failed:",
+      response.status,
+      details
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
+function getTagsForService(service: string) {
+  const serviceTagMap: Record<string, string> = {
+    "Meta Ads": "Service - Meta Ads",
+    "Google Ads": "Service - Google Ads",
+    "Lead Generation": "Service - Lead Generation",
+    "Website/Landing Page": "Service - Website",
+    "CRM & WhatsApp Automation": "Service - CRM Automation",
+    "Complete Marketing Solution": "Service - Complete Solution",
+  };
+
+  return [
+    "PANDAeCe - Website Form",
+    "Digital Marketing",
+    ...(serviceTagMap[service]
+      ? [serviceTagMap[service]]
+      : []),
+  ];
+}
+
 export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) {
     return errorResponse(
@@ -163,26 +211,36 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const contentLength = Number(request.headers.get("content-length") || 0);
+  const contentLength = Number(
+    request.headers.get("content-length") || 0
+  );
+
   if (contentLength > 16_384) {
     return errorResponse("The submitted form is too large.", 413);
   }
 
   let payload: unknown;
+
   try {
     payload = await request.json();
   } catch {
-    return errorResponse("Please submit the completed form again.", 400);
+    return errorResponse(
+      "Please submit the completed form again.",
+      400
+    );
   }
 
   if (!isRecord(payload)) {
-    return errorResponse("Please submit the completed form again.", 400);
+    return errorResponse(
+      "Please submit the completed form again.",
+      400
+    );
   }
 
   // Honeypot: reject bot submissions.
   if (
     typeof payload.website === "string" &&
-    payload.website.trim().length > 0
+    payload.website.trim()
   ) {
     return errorResponse(
       "We couldn't verify this submission. Please try again.",
@@ -197,175 +255,123 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const rawServices = extractServices(payload);
-  const primaryService = rawServices.join(", ") || (rawServices[0] ?? "");
-  const websiteUrl =
-    typeof payload.websiteUrl === "string" && payload.websiteUrl.trim().length > 0
-      ? payload.websiteUrl.trim()
-      : undefined;
-
-  const businessName =
-    typeof payload.businessName === "string" && payload.businessName.trim().length > 0
-      ? payload.businessName.trim()
-      : typeof payload.companyName === "string" && payload.companyName.trim().length > 0
-      ? payload.companyName.trim()
-      : undefined;
-
-  const decisionMaker =
-    typeof payload.decisionMaker === "string" && payload.decisionMaker.trim().length > 0
-      ? payload.decisionMaker.trim()
-      : undefined;
-
-  const lead: LeadData = {
-    name: String(payload.name).trim().replace(/\s+/g, " "),
-    phone: String(payload.phone).trim(),
-    email: String(payload.email).trim().toLowerCase(),
-    service: primaryService,
-    services: rawServices,
-    budget: String(payload.budget).trim(),
-    goal: String(payload.goal).trim(),
-    websiteUrl,
-    businessName,
-    decisionMaker,
-    website: "",
+  const lead = {
+    name: payload.name.trim().replace(/\s+/g, " "),
+    phone: payload.phone.trim(),
+    email: payload.email.trim().toLowerCase(),
+    service: payload.service,
+    budget: payload.budget,
+    goal: payload.goal,
   };
 
-  const apiKey = process.env.GHL_API_KEY || process.env.GHL_API_TOKEN;
-  const locationId = process.env.GHL_LOCATION_ID;
+  const ghlToken = process.env.GHL_API_TOKEN;
+  const ghlLocationId = process.env.GHL_LOCATION_ID;
   const webhookUrl = process.env.LEAD_WEBHOOK_URL;
 
   try {
-    if (apiKey && locationId) {
-      const [firstName, ...lastNames] = lead.name.split(" ");
-      const lastName = lastNames.join(" ");
+    if (ghlToken && ghlLocationId) {
+      const nameParts = lead.name.split(" ");
 
-      // Map tags matching senior pattern:
-      const tags = [
-        "digital marketing",
-        "PANDAeCe - Website Form",
-        ...(lead.service ? [`Service - ${lead.service}`] : []),
-      ];
+      const source =
+        `PANDAeCe website lead | Service: ${lead.service}` +
+        ` | Monthly budget: ${lead.budget}` +
+        ` | Goal: ${lead.goal}`;
 
-      // Build HighLevel contact payload matching senior structure:
-      const ghlPayload: Record<string, unknown> = {
-        locationId,
-        firstName,
-        name: lead.name,
-        email: lead.email,
-        source: "Landing Page Form",
-        tags,
-      };
-
-      if (lastName) ghlPayload.lastName = lastName;
-      if (lead.phone) ghlPayload.phone = lead.phone;
-      if (lead.businessName) ghlPayload.companyName = lead.businessName;
-      if (lead.websiteUrl) ghlPayload.website = lead.websiteUrl;
-
-      // Map custom fields:
-      const customFields: Array<{ key: string; field_value: string; value?: string }> = [];
-
-      // 1. Services Interested:
-      // Maps to senior's working key "service_needed" and requested key "which_services_interested"
-      if (lead.service) {
-        customFields.push({ key: "service_needed", field_value: lead.service, value: lead.service });
-        customFields.push({ key: "which_services_interested", field_value: lead.service, value: lead.service });
-        customFields.push({ key: "contact.which_services_interested", field_value: lead.service, value: lead.service });
-      }
-
-      // 2. Monthly Marketing Budget:
-      // Maps to senior's working key "monthly_marketing_budget" and requested key "contact.monthly_marketing_budget"
-      if (lead.budget) {
-        customFields.push({ key: "monthly_marketing_budget", field_value: lead.budget, value: lead.budget });
-        customFields.push({ key: "contact.monthly_marketing_budget", field_value: lead.budget, value: lead.budget });
-      }
-
-      // 3. Decision Maker:
-      // Maps to senior's key "the_decision_maker_for_marketing_services"
-      if (lead.decisionMaker) {
-        customFields.push({
-          key: "the_decision_maker_for_marketing_services",
-          field_value: lead.decisionMaker,
-          value: lead.decisionMaker,
-        });
-      }
-
-      // 4. Primary Business Goal:
-      // Maps to requested key "contact.what_is_your_primary_goal_for_the_next_36_months" and senior's "message"
-      if (lead.goal) {
-        customFields.push({
-          key: "what_is_your_primary_goal_for_the_next_36_months",
-          field_value: lead.goal,
-          value: lead.goal,
-        });
-        customFields.push({
-          key: "contact.what_is_your_primary_goal_for_the_next_36_months",
-          field_value: lead.goal,
-          value: lead.goal,
-        });
-        customFields.push({ key: "message", field_value: lead.goal, value: lead.goal });
-      }
-
-      if (customFields.length > 0) {
-        ghlPayload.customFields = customFields;
-      }
-
-      // Send upsert to GoHighLevel with 2021-07-28 version:
-      let res = await fetch(GHL_UPSERT_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          Version: "2021-07-28",
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(ghlPayload),
-        signal: AbortSignal.timeout(12000),
-      });
-
-      // Fallback: If GHL rejects due to duplicate custom field keys, retry with senior's core keys
-      if (!res.ok && (res.status === 400 || res.status === 422)) {
-        const errorDetail = await res.text();
-        console.warn(
-          "GHL upsert returned validation status, retrying with core custom field keys:",
-          res.status,
-          errorDetail
-        );
-
-        const coreCustomFields: Array<{ key: string; field_value: string }> = [];
-        if (lead.service) coreCustomFields.push({ key: "service_needed", field_value: lead.service });
-        if (lead.budget) coreCustomFields.push({ key: "monthly_marketing_budget", field_value: lead.budget });
-        if (lead.decisionMaker) coreCustomFields.push({ key: "the_decision_maker_for_marketing_services", field_value: lead.decisionMaker });
-        if (lead.goal) coreCustomFields.push({ key: "message", field_value: lead.goal });
-
-        res = await fetch(GHL_UPSERT_URL, {
+      // 1. Create or update the GHL contact.
+      const response = await fetch(
+        `${GHL_BASE_URL}/contacts/upsert`,
+        {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${apiKey}`,
-            Version: "2021-07-28",
+            Authorization: `Bearer ${ghlToken}`,
             "Content-Type": "application/json",
             Accept: "application/json",
+            Version: "v3",
           },
           body: JSON.stringify({
-            ...ghlPayload,
-            customFields: coreCustomFields.length > 0 ? coreCustomFields : undefined,
+            locationId: ghlLocationId,
+            name: lead.name,
+            firstName: nameParts[0],
+            ...(nameParts.length > 1
+              ? { lastName: nameParts.slice(1).join(" ") }
+              : {}),
+            email: lead.email,
+            phone: lead.phone,
+            source,
+            createNewIfDuplicateAllowed: false,
           }),
           signal: AbortSignal.timeout(12000),
-        });
-      }
+        }
+      );
 
-      if (!res.ok) {
-        const details = await res.text();
-        console.error("GHL contact upsert failed:", res.status, details);
+      if (!response.ok) {
+        const details = await response.text();
+
+        console.error(
+          "GHL contact upsert failed:",
+          response.status,
+          details
+        );
+
         return errorResponse(
           "We couldn't save your details right now. Please try again shortly.",
           502
         );
       }
 
+      const result: unknown = await response.json();
+
+      // 2. Read the contact ID from GHL's response.
+      let contactId: string | undefined;
+
+      if (isRecord(result) && isRecord(result.contact)) {
+        const id = result.contact.id;
+
+        if (typeof id === "string") {
+          contactId = id;
+        }
+      }
+
+      if (!contactId) {
+        console.error(
+          "GHL upsert succeeded but returned no contact ID."
+        );
+
+        // The contact may already have been saved.
+        // Do not tell the visitor that the submission failed.
+        return NextResponse.json(
+          {
+            ok: true,
+            warning: "Contact saved; tag application needs checking.",
+          },
+          { status: 201 }
+        );
+      }
+
+      // 3. Generate the required tags from the selected service.
+      const tags = getTagsForService(lead.service);
+
+      // 4. Attempt to create all tags automatically.
+      // Existing tags may return an error; that is logged.
+      for (const tag of tags) {
+        await createGhlTag(
+          tag,
+          ghlToken,
+          ghlLocationId
+        );
+      }
+
+      // 5. Apply the tags to this contact.
+      const tagsApplied = await applyGhlTags(
+        contactId,
+        tags,
+        ghlToken
+      );
+
       return NextResponse.json(
         {
           ok: true,
-          success: true,
+          tagsApplied,
         },
         { status: 201 }
       );
@@ -402,16 +408,9 @@ export async function POST(request: NextRequest) {
         headers,
         body: JSON.stringify({
           ...lead,
-          source: "Landing Page Form",
+          source: "PANDAeCe website lead",
           submittedAt: new Date().toISOString(),
-          tags: ["digital marketing", "PANDAeCe - Website Form"],
-          customFields: {
-            service_needed: lead.service,
-            which_services_interested: lead.service,
-            monthly_marketing_budget: lead.budget,
-            what_is_your_primary_goal_for_the_next_36_months: lead.goal,
-            message: lead.goal,
-          },
+          tags: getTagsForService(lead.service),
         }),
         signal: AbortSignal.timeout(12000),
       });
@@ -423,7 +422,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      return NextResponse.json({ ok: true, success: true }, { status: 201 });
+      return NextResponse.json({ ok: true }, { status: 201 });
     }
 
     return errorResponse(

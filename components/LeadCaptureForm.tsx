@@ -121,16 +121,15 @@ export default function LeadCaptureForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
-          phone,
-          email,
-          websiteUrl: form.websiteUrl.trim(),
-          service: form.service,
-          services: [form.service],
-          budget: form.budget,
-          goal: form.goal,
-          website: form.website,
-        }),
+  name,
+  phone,
+  email,
+  websiteUrl: form.websiteUrl.trim(),
+  service: form.service,
+  budget: form.budget,
+  goal: form.goal,
+  website: form.website,
+}),
       });
 
       const result = await response.json().catch(() => ({}));
@@ -232,26 +231,26 @@ export default function LeadCaptureForm() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="websiteUrl">
-              <span className={styles.fieldIcon} aria-hidden="true">↗</span>
-              Website <span className={styles.optional}>(Optional)</span>
-            </label>
+  <label htmlFor="website">
+    <span className={styles.fieldIcon} aria-hidden="true">↗</span>
+    Website <span className={styles.optional}>(Optional)</span>
+  </label>
 
-            <input
-              id="websiteUrl"
-              name="websiteUrl"
-              type="url"
-              placeholder="https://yourwebsite.com"
-              value={form.websiteUrl}
-              onChange={handleChange}
-              disabled={loading}
-            />
-          </div>
+  <input
+    id="website"
+    name="websiteUrl"
+    type="url"
+    placeholder="https://yourwebsite.com"
+    value={form.websiteUrl}
+    onChange={handleChange}
+    disabled={loading}
+  />
+</div>
 
           <div className={styles.field}>
             <label htmlFor="service">
               <span className={styles.fieldIcon} aria-hidden="true">▤</span>
-              Services interested <span className={styles.required}>*</span>
+              Service required <span className={styles.required}>*</span>
             </label>
             <select
               id="service"
@@ -273,7 +272,7 @@ export default function LeadCaptureForm() {
           <div className={styles.field}>
             <label htmlFor="budget">
               <span className={styles.fieldIcon} aria-hidden="true">▱</span>
-              Monthly marketing budget <span className={styles.required}>*</span>
+              Monthly budget <span className={styles.required}>*</span>
             </label>
             <select
               id="budget"
@@ -295,7 +294,7 @@ export default function LeadCaptureForm() {
           <div className={styles.field}>
             <label htmlFor="goal">
               <span className={styles.fieldIcon} aria-hidden="true">◎</span>
-              Primary business goal <span className={styles.required}>*</span>
+              Primary goal <span className={styles.required}>*</span>
             </label>
             <select
               id="goal"

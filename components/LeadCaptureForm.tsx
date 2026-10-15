@@ -1,18 +1,7 @@
+
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import {
-  ArrowUpRight,
-  Briefcase,
-  CheckCircle2,
-  LoaderCircle,
-  Mail,
-  Phone,
-  Target,
-  UserRound,
-  Wallet,
-} from "lucide-react";
+import { FormEvent, useState } from "react";
 import styles from "./LeadCaptureForm.module.css";
 
 const services = [
@@ -23,176 +12,354 @@ const services = [
   "CRM & WhatsApp Automation",
   "Complete Marketing Solution",
 ];
-const budgets = ["Below ₹10,000", "₹10,000–₹25,000", "₹25,000–₹50,000", "₹50,000+"];
-const goals = ["Generate more leads", "Reduce cost per lead", "Improve conversions", "Automate follow-ups"];
 
-type LeadFormData = {
+const budgets = [
+  "₹5 lakh+",
+  "₹3 lakh – ₹5 lakh",
+  "₹1 lakh – ₹3 lakh",
+  "Below ₹1 lakh",
+];
+
+const goals = [
+  "Generate more leads",
+  "Reduce cost per lead",
+  "Improve conversions",
+  "Automate follow-ups",
+];
+
+type FormData = {
   name: string;
   phone: string;
   email: string;
+  websiteUrl: string;
   service: string;
   budget: string;
   goal: string;
   website: string;
 };
-type Field = Exclude<keyof LeadFormData, "website">;
-type FieldErrors = Partial<Record<Field, string>>;
-
-const initialData: LeadFormData = {
-  name: "", phone: "", email: "", service: "", budget: "", goal: "", website: "",
+const initialForm: FormData = {
+  name: "",
+  phone: "",
+  email: "",
+  websiteUrl: "",
+  service: "",
+  budget: "",
+  goal: "",
+  website: "",
 };
 
-function validate(data: LeadFormData): FieldErrors {
-  const errors: FieldErrors = {};
-  if (data.name.trim().length < 2) errors.name = "Enter your full name.";
-  const phoneDigits = data.phone.replace(/\D/g, "");
-  if (!/^\+?[\d\s().-]+$/.test(data.phone.trim()) || phoneDigits.length < 10 || phoneDigits.length > 15) {
-    errors.phone = "Enter a valid phone number with 10 to 15 digits.";
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())) errors.email = "Enter a valid business email address.";
-  if (!services.includes(data.service)) errors.service = "Choose a service.";
-  if (!budgets.includes(data.budget)) errors.budget = "Choose an advertising budget.";
-  if (!goals.includes(data.goal)) errors.goal = "Choose your primary goal.";
-  return errors;
-}
-
 export default function LeadCaptureForm() {
-  const [form, setForm] = useState(initialData);
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-  const reducedMotion = useReducedMotion();
+  const [form, setForm] = useState<FormData>(initialForm);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
-  function update<K extends keyof LeadFormData>(key: K, value: LeadFormData[K]) {
-    setForm(current => ({ ...current, [key]: value }));
-    if (key !== "website") setErrors(current => ({ ...current, [key]: undefined }));
-    if (status === "error") { setStatus("idle"); setMessage(""); }
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
+    const { name, value } = event.target;
+
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === "submitting" || status === "success") return;
-    const nextErrors = validate(form);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) {
-      setStatus("error");
-      setMessage("Please correct the highlighted fields and try again.");
+
+    if (loading) return;
+
+    setStatus("");
+    setStatusType("");
+
+    const name = form.name.trim();
+    const phone = form.phone.trim();
+    const email = form.email.trim();
+
+    if (
+      !name ||
+      !phone ||
+      !email ||
+      !form.service ||
+      !form.budget ||
+      !form.goal
+    ) {
+      setStatus("Please complete all required fields.");
+      setStatusType("error");
       return;
     }
 
-    setStatus("submitting");
-    setMessage("");
+    if (
+      name.length > 120 ||
+      email.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
+    ) {
+      setStatus("Please check your name and email address.");
+      setStatusType("error");
+      return;
+    }
+
+    const digits = phone.replace(/\D/g, "");
+
+    if (
+      !/^\+?[\d\s().-]+$/.test(phone) ||
+      digits.length < 10 ||
+      digits.length > 15
+    ) {
+      setStatus("Please enter a valid phone number.");
+      setStatusType("error");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const response = await fetch("/api/leads", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+  name,
+  phone,
+  email,
+  websiteUrl: form.websiteUrl.trim(),
+  service: form.service,
+  budget: form.budget,
+  goal: form.goal,
+  website: form.website,
+}),
       });
-      const result = await response.json().catch(() => null) as { message?: string } | null;
-      if (!response.ok) throw new Error(result?.message || "We couldn't submit your details. Please try again.");
-      setStatus("success");
-      setMessage("Thanks — your details were received. Our team will be in touch soon.");
-      setForm(initialData);
-      setErrors({});
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || result.ok === false) {
+        throw new Error(
+          typeof result.message === "string"
+            ? result.message
+            : "Unable to submit your details. Please try again."
+        );
+      }
+
+      window.location.href = "/thank-you";
     } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "We couldn't submit your details. Please try again.");
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      );
+      setStatusType("error");
+    } finally {
+      setLoading(false);
     }
   }
 
-  const inputId = (field: Field) => `lead-${field}`;
-  const describedBy = (field: Field) => errors[field] ? `${inputId(field)}-error` : undefined;
-
   return (
-    <motion.section
-      id="lead-form"
-      className={styles.card}
-      aria-labelledby="lead-form-title"
-      style={{ transformPerspective: 1100 }}
-      initial={reducedMotion ? false : { opacity: 0, y: 22, rotateY: -3 }}
-      animate={{ opacity: 1, y: 0, rotateY: 0 }}
-      whileHover={reducedMotion ? undefined : { y: -3, rotateY: 0.5 }}
-      transition={{ duration: reducedMotion ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div className={styles.heading}>
-        <span className={styles.eyebrow}><span /> YOUR GROWTH STARTS HERE</span>
-        <h2 id="lead-form-title">Tell us what you want to grow</h2>
-        <p>Share a few details and we&apos;ll help you find the right next step.</p>
-      </div>
+    <section className={styles.section} id="lead-form">
+      <div className={styles.formCard}>
+        <div className={styles.header}>
+          <div className={styles.eyebrow}>
+            <span className={styles.eyebrowDot} />
+            YOUR GROWTH STARTS HERE
+          </div>
 
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <div className={styles.grid}>
+          <h2 className={styles.title}>
+            Tell us what you want to grow
+          </h2>
+
+          <p className={styles.description}>
+            Share a few details and we&apos;ll help you find the right next step.
+          </p>
+        </div>
+
+        <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <div className={styles.field}>
-            <label htmlFor={inputId("name")}><span className={styles.labelIcon} aria-hidden="true"><UserRound size={15} /></span>Full name <span aria-hidden="true">*</span></label>
-            <input id={inputId("name")} name="name" autoComplete="name" required maxLength={100}
-              value={form.name} onChange={event => update("name", event.target.value)}
-              aria-invalid={Boolean(errors.name)} aria-describedby={describedBy("name")} />
-            {errors.name && <span className={styles.fieldError} id={`${inputId("name")}-error`}>{errors.name}</span>}
+            <label htmlFor="name">
+              <span className={styles.fieldIcon} aria-hidden="true">♙</span>
+              Full name <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              placeholder="Enter your full name"
+              value={form.name}
+              onChange={handleChange}
+              maxLength={120}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="phone">
+              <span className={styles.fieldIcon} aria-hidden="true">♧</span>
+              Phone number <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="Enter your phone number"
+              value={form.phone}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="email">
+              <span className={styles.fieldIcon} aria-hidden="true">✉</span>
+              Email <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="Enter your business email"
+              value={form.email}
+              onChange={handleChange}
+              maxLength={254}
+              required
+              disabled={loading}
+            />
           </div>
           <div className={styles.field}>
-            <label htmlFor={inputId("phone")}><span className={styles.labelIcon} aria-hidden="true"><Phone size={15} /></span>Phone number <span aria-hidden="true">*</span></label>
-            <input id={inputId("phone")} name="phone" type="tel" autoComplete="tel" inputMode="tel"
-              required maxLength={24} value={form.phone} onChange={event => update("phone", event.target.value)}
-              aria-invalid={Boolean(errors.phone)} aria-describedby={describedBy("phone")} />
-            {errors.phone && <span className={styles.fieldError} id={`${inputId("phone")}-error`}>{errors.phone}</span>}
-          </div>
+  <label htmlFor="website">
+    <span className={styles.fieldIcon} aria-hidden="true">↗</span>
+    Website <span className={styles.optional}>(Optional)</span>
+  </label>
+
+  <input
+    id="website"
+    name="websiteUrl"
+    type="url"
+    placeholder="https://yourwebsite.com"
+    value={form.websiteUrl}
+    onChange={handleChange}
+    disabled={loading}
+  />
+</div>
+
           <div className={styles.field}>
-            <label htmlFor={inputId("email")}><span className={styles.labelIcon} aria-hidden="true"><Mail size={15} /></span>Business email <span aria-hidden="true">*</span></label>
-            <input id={inputId("email")} name="email" type="email" autoComplete="email" required maxLength={254}
-              value={form.email} onChange={event => update("email", event.target.value)}
-              aria-invalid={Boolean(errors.email)} aria-describedby={describedBy("email")} />
-            {errors.email && <span className={styles.fieldError} id={`${inputId("email")}-error`}>{errors.email}</span>}
-          </div>
-          <div className={styles.field}>
-            <label htmlFor={inputId("service")}><span className={styles.labelIcon} aria-hidden="true"><Briefcase size={15} /></span>Service required <span aria-hidden="true">*</span></label>
-            <select id={inputId("service")} name="service" required value={form.service}
-              onChange={event => update("service", event.target.value)} aria-invalid={Boolean(errors.service)}
-              aria-describedby={describedBy("service")}>
+            <label htmlFor="service">
+              <span className={styles.fieldIcon} aria-hidden="true">▤</span>
+              Service required <span className={styles.required}>*</span>
+            </label>
+            <select
+              id="service"
+              name="service"
+              value={form.service}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            >
               <option value="" disabled>Select a service</option>
-              {services.map(service => <option key={service} value={service}>{service}</option>)}
+              {services.map((service) => (
+                <option key={service} value={service}>
+                  {service}
+                </option>
+              ))}
             </select>
-            {errors.service && <span className={styles.fieldError} id={`${inputId("service")}-error`}>{errors.service}</span>}
           </div>
+
           <div className={styles.field}>
-            <label htmlFor={inputId("budget")}><span className={styles.labelIcon} aria-hidden="true"><Wallet size={15} /></span>Monthly budget <span aria-hidden="true">*</span></label>
-            <select id={inputId("budget")} name="budget" required value={form.budget}
-              onChange={event => update("budget", event.target.value)} aria-invalid={Boolean(errors.budget)}
-              aria-describedby={describedBy("budget")}>
+            <label htmlFor="budget">
+              <span className={styles.fieldIcon} aria-hidden="true">▱</span>
+              Monthly budget <span className={styles.required}>*</span>
+            </label>
+            <select
+              id="budget"
+              name="budget"
+              value={form.budget}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            >
               <option value="" disabled>Select a budget</option>
-              {budgets.map(budget => <option key={budget} value={budget}>{budget}</option>)}
+              {budgets.map((budget) => (
+                <option key={budget} value={budget}>
+                  {budget}
+                </option>
+              ))}
             </select>
-            {errors.budget && <span className={styles.fieldError} id={`${inputId("budget")}-error`}>{errors.budget}</span>}
           </div>
+
           <div className={styles.field}>
-            <label htmlFor={inputId("goal")}><span className={styles.labelIcon} aria-hidden="true"><Target size={15} /></span>Primary goal <span aria-hidden="true">*</span></label>
-            <select id={inputId("goal")} name="goal" required value={form.goal}
-              onChange={event => update("goal", event.target.value)} aria-invalid={Boolean(errors.goal)}
-              aria-describedby={describedBy("goal")}>
+            <label htmlFor="goal">
+              <span className={styles.fieldIcon} aria-hidden="true">◎</span>
+              Primary goal <span className={styles.required}>*</span>
+            </label>
+            <select
+              id="goal"
+              name="goal"
+              value={form.goal}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            >
               <option value="" disabled>Select your goal</option>
-              {goals.map(goal => <option key={goal} value={goal}>{goal}</option>)}
+              {goals.map((goal) => (
+                <option key={goal} value={goal}>
+                  {goal}
+                </option>
+              ))}
             </select>
-            {errors.goal && <span className={styles.fieldError} id={`${inputId("goal")}-error`}>{errors.goal}</span>}
           </div>
-        </div>
 
-        <div className={styles.honeypot} aria-hidden="true">
-          <label htmlFor="lead-website">Leave this field empty</label>
-          <input id="lead-website" name="website" tabIndex={-1} autoComplete="off" value={form.website}
-            onChange={event => update("website", event.target.value)} />
-        </div>
+          <div className={styles.honeypot} aria-hidden="true">
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.website}
+              onChange={handleChange}
+            />
+          </div>
 
-        {message && <p className={`${styles.message} ${status === "success" ? styles.success : styles.error}`}
-          role={status === "success" ? "status" : "alert"} aria-live={status === "success" ? "polite" : "assertive"}>
-          {status === "success" && <CheckCircle2 size={18} aria-hidden="true" />}{message}
-        </p>}
+          {status && (
+            <div
+              className={`${styles.status} ${
+                statusType === "success" ? styles.success : styles.error
+              }`}
+              role="status"
+              aria-live="polite"
+            >
+              {status}
+            </div>
+          )}
 
-        <button className={styles.submit} type="submit" disabled={status === "submitting" || status === "success"}>
-          {status === "submitting" ? <><LoaderCircle className={styles.spinner} size={18} aria-hidden="true" /> Sending…</>
-            : status === "success" ? <>Details received <CheckCircle2 size={18} aria-hidden="true" /></>
-            : <>Get my growth plan <ArrowUpRight size={18} aria-hidden="true" /></>}
-        </button>
-        <p className={styles.privacy}>Your details are only used to follow up about your enquiry.</p>
-      </form>
-    </motion.section>
+          <div className={styles.footer}>
+            <button
+              className={styles.submitButton}
+              type="submit"
+              disabled={loading}
+            >
+              <span>
+                {loading ? "Submitting..." : "Get my growth plan"}
+              </span>
+              {!loading && (
+                <span className={styles.buttonArrow} aria-hidden="true">
+                  ↗
+                </span>
+              )}
+            </button>
+
+            <p className={styles.privacy}>
+              Your details are only used to follow up about your enquiry.
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 }

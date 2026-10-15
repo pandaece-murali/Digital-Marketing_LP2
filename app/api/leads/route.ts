@@ -10,7 +10,12 @@ const allowedServices = new Set([
   "CRM & WhatsApp Automation",
   "Complete Marketing Solution",
 ]);
-const allowedBudgets = new Set(["Below ₹10,000", "₹10,000–₹25,000", "₹25,000–₹50,000", "₹50,000+"]);
+const allowedBudgets = new Set([
+  "₹5 lakh+",
+  "₹3 lakh – ₹5 lakh",
+  "₹1 lakh – ₹3 lakh",
+  "Below ₹1 lakh",
+]);
 const allowedGoals = new Set(["Generate more leads", "Reduce cost per lead", "Improve conversions", "Automate follow-ups"]);
 
 type Lead = {

@@ -115,7 +115,7 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Booking Button */}
-        <Link href="/booking" className="nav-cta">
+        <Link href="/#lead-form" className="nav-cta">
           Book a Call <ArrowUpRight size={16} />
         </Link>
 

@@ -47,7 +47,7 @@ export default function Footer() {
 
             <div>
               <strong>Get started</strong>
-              <Link href="/booking">
+              <Link href="#lead-form">
                 <Phone size={15} aria-hidden="true" />
                 Book a consultation
               </Link>

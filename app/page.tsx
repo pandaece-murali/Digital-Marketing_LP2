@@ -51,7 +51,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.4}>
                 <div className="hero-actions">
-                  <Link href="/booking" className="button button-primary">
+                  <Link href="#lead-form" className="button button-primary">
                     Book Now &amp; Get <span className="yellow-highlight">20% Off</span>
                     <ArrowUpRight size={18} />
                   </Link>
@@ -76,12 +76,12 @@ export default function Home() {
             <span><BarChart3 size={14} aria-hidden="true" /> PERFORMANCE ADS</span><i />
             <span><MousePointerClick size={14} aria-hidden="true" /> CONVERSION DESIGN</span><i />
             <span><Workflow size={14} aria-hidden="true" /> CRM + AUTOMATION</span>
-            
+
           </div>
 
         </section>
 
-       
+
         <section id="about" className="section about-section">
           <div className="shell about-grid">
             <Reveal>
@@ -106,14 +106,14 @@ export default function Home() {
 
             <Reveal delay={0.1} className="about-art-wrap">
               <ParallaxVisual className="about-growth-parallax">
-              <Image
-                className="about-growth-image"
-                src="/images/pandaece-digital-marketing-growth.png"
-                alt="Marketing growth dashboard showing Google Ads, Meta Ads, WhatsApp automation, lead generation, CRM integration, and performance analytics"
-                width={852}
-                height={660}
-                sizes="(max-width: 760px) 100vw, 45vw"
-              />
+                <Image
+                  className="about-growth-image"
+                  src="/images/pandaece-digital-marketing-growth.png"
+                  alt="Marketing growth dashboard showing Google Ads, Meta Ads, WhatsApp automation, lead generation, CRM integration, and performance analytics"
+                  width={852}
+                  height={660}
+                  sizes="(max-width: 760px) 100vw, 45vw"
+                />
               </ParallaxVisual>
               <div className="about-art-note"><span className="green-dot" /> Strategy to follow-up, under one roof.</div>
             </Reveal>
@@ -141,15 +141,15 @@ export default function Home() {
                 );
               })}
             </div>
-            
-<div className="stats-cta">
-  <a
-    className="button button-primary results-cta"
-    href="#lead-form"
-  >
-    Let&apos;s Grow Your Business <ArrowUpRight size={17} />
-  </a>
-</div>
+
+            <div className="stats-cta">
+              <a
+                className="button button-primary results-cta"
+                href="#lead-form"
+              >
+                Let&apos;s Grow Your Business <ArrowUpRight size={17} />
+              </a>
+            </div>
 
           </div>
         </section>
@@ -177,7 +177,7 @@ export default function Home() {
               <div className="services-cta">
                 <div><span className="green-dot" /> NOT SURE WHAT YOU NEED?</div>
                 <p>Let&apos;s find the biggest opportunity in your current setup.</p>
-                <Link href="/booking" className="text-link">
+                <Link href="#lead-form" className="text-link">
                   Book a call &amp; save 20% <ArrowUpRight size={17} />
                 </Link>
                 <a className="button button-secondary" href="#services">
@@ -220,248 +220,248 @@ export default function Home() {
           </div>
         </section>
 
-      
 
 
-<section id="testimonials" className="section testimonials-section">
-  <div className="shell">
-    <Reveal>
-      <div className="section-top">
-        <div>
-          <div className="eyebrow">
-            <span className="eyebrow-line" />
-            WORD FROM THE FIELD
+
+        <section id="testimonials" className="section testimonials-section">
+          <div className="shell">
+            <Reveal>
+              <div className="section-top">
+                <div>
+                  <div className="eyebrow">
+                    <span className="eyebrow-line" />
+                    WORD FROM THE FIELD
+                  </div>
+
+                  <h2 className="section-heading">
+                    What Our Clients Say
+                  </h2>
+                </div>
+
+                <p className="section-aside">
+                  Real experiences. Trusted partnerships. Meaningful results.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="testimonial-marquee">
+              <div className="testimonial-track">
+                {[
+                  {
+                    name: "Puneeth V",
+                    rating: 5,
+                    review:
+                      "PANDAeCe helped strengthen our online presence through tailored content and marketing optimization. The team was professional, creative, and consistently responsive.",
+                  },
+                  {
+                    name: "Sakshi Nagaraj",
+                    rating: 5,
+                    review:
+                      "PANDAeCe delivered effective eCommerce enablement and software development solutions that helped streamline our operations. The team was professional and responsive.",
+                  },
+                  {
+                    name: "Nikitha Harish",
+                    rating: 5,
+                    review:
+                      "PANDAeCe provided thoughtful branding solutions that helped us build a distinctive and memorable brand identity.",
+                  },
+                  {
+                    name: "Rakshitha K",
+                    rating: 4,
+                    review:
+                      "PANDAeCe developed tailored ERP solutions that supported better operational efficiency and management. The team demonstrated professionalism and responsiveness.",
+                  },
+                  {
+                    name: "Swarupa S",
+                    rating: 5,
+                    review:
+                      "The team at PANDAeCe delivered creative and responsive support across our eCommerce and digital requirements.",
+                  },
+                  {
+                    name: "Mamatha H K",
+                    rating: 4,
+                    review:
+                      "PANDAeCe brought strategic thinking and practical expertise to our digital marketing efforts, helping improve online visibility and sales.",
+                  },
+                  {
+                    name: "Kavipriya Paramasivam",
+                    rating: 5,
+                    review:
+                      "PANDAeCe helped improve our business operations through solutions tailored to our requirements. The team was professional and collaborative.",
+                  },
+                ]
+                  .concat([
+                    {
+                      name: "Puneeth V",
+                      rating: 5,
+                      review:
+                        "PANDAeCe helped strengthen our online presence through tailored content and marketing optimization. The team was professional, creative, and consistently responsive.",
+                    },
+                    {
+                      name: "Sakshi Nagaraj",
+                      rating: 5,
+                      review:
+                        "PANDAeCe delivered effective eCommerce enablement and software development solutions that helped streamline our operations. The team was professional and responsive.",
+                    },
+                    {
+                      name: "Nikitha Harish",
+                      rating: 5,
+                      review:
+                        "PANDAeCe provided thoughtful branding solutions that helped us build a distinctive and memorable brand identity.",
+                    },
+                    {
+                      name: "Rakshitha K",
+                      rating: 4,
+                      review:
+                        "PANDAeCe developed tailored ERP solutions that supported better operational efficiency and management. The team demonstrated professionalism and responsiveness.",
+                    },
+                    {
+                      name: "Swarupa S",
+                      rating: 5,
+                      review:
+                        "The team at PANDAeCe delivered creative and responsive support across our eCommerce and digital requirements.",
+                    },
+                    {
+                      name: "Mamatha H K",
+                      rating: 4,
+                      review:
+                        "PANDAeCe brought strategic thinking and practical expertise to our digital marketing efforts, helping improve online visibility and sales.",
+                    },
+                    {
+                      name: "Kavipriya Paramasivam",
+                      rating: 5,
+                      review:
+                        "PANDAeCe helped improve our business operations through solutions tailored to our requirements. The team was professional and collaborative.",
+                    },
+                  ])
+                  .map((testimonial, i) => (
+                    <article
+                      className="testimonial-card testimonial-marquee-card"
+                      key={`${testimonial.name}-${i}`}
+                    >
+                      <div className="review-card-header">
+                        <div className="reviewer-avatar">
+                          {testimonial.name
+                            .split(" ")
+                            .map((part) => part[0])
+                            .join("")
+                            .slice(0, 2)}
+                        </div>
+
+                        <div className="reviewer-info">
+                          <strong>{testimonial.name}</strong>
+                          <span>Client review</span>
+                        </div>
+
+                        <span
+                          className="google-review-mark"
+                          aria-label="Review"
+                        >
+                          G
+                        </span>
+                      </div>
+
+                      <div
+                        className="review-stars"
+                        aria-label={`${testimonial.rating} out of 5 stars`}
+                      >
+                        {"★".repeat(testimonial.rating)}
+                        <span className="empty-stars">
+                          {"★".repeat(5 - testimonial.rating)}
+                        </span>
+                      </div>
+
+                      <blockquote>
+                        &ldquo;{testimonial.review}&rdquo;
+                      </blockquote>
+
+                      <div className="review-card-footer">
+                        <span className="review-source-dot" />
+                        <span>Client feedback</span>
+                      </div>
+                    </article>
+                  ))}
+              </div>
+            </div>
           </div>
+        </section>
 
-          <h2 className="section-heading">
-            What Our Clients Say
-          </h2>
-        </div>
 
-        <p className="section-aside">
-          Real experiences. Trusted partnerships. Meaningful results.
-        </p>
-      </div>
-    </Reveal>
 
-    <div className="testimonial-marquee">
-      <div className="testimonial-track">
-        {[
-          {
-            name: "Puneeth V",
-            rating: 5,
-            review:
-              "PANDAeCe helped strengthen our online presence through tailored content and marketing optimization. The team was professional, creative, and consistently responsive.",
-          },
-          {
-            name: "Sakshi Nagaraj",
-            rating: 5,
-            review:
-              "PANDAeCe delivered effective eCommerce enablement and software development solutions that helped streamline our operations. The team was professional and responsive.",
-          },
-          {
-            name: "Nikitha Harish",
-            rating: 5,
-            review:
-              "PANDAeCe provided thoughtful branding solutions that helped us build a distinctive and memorable brand identity.",
-          },
-          {
-            name: "Rakshitha K",
-            rating: 4,
-            review:
-              "PANDAeCe developed tailored ERP solutions that supported better operational efficiency and management. The team demonstrated professionalism and responsiveness.",
-          },
-          {
-            name: "Swarupa S",
-            rating: 5,
-            review:
-              "The team at PANDAeCe delivered creative and responsive support across our eCommerce and digital requirements.",
-          },
-          {
-            name: "Mamatha H K",
-            rating: 4,
-            review:
-              "PANDAeCe brought strategic thinking and practical expertise to our digital marketing efforts, helping improve online visibility and sales.",
-          },
-          {
-            name: "Kavipriya Paramasivam",
-            rating: 5,
-            review:
-              "PANDAeCe helped improve our business operations through solutions tailored to our requirements. The team was professional and collaborative.",
-          },
-        ]
-          .concat([
-            {
-              name: "Puneeth V",
-              rating: 5,
-              review:
-                "PANDAeCe helped strengthen our online presence through tailored content and marketing optimization. The team was professional, creative, and consistently responsive.",
-            },
-            {
-              name: "Sakshi Nagaraj",
-              rating: 5,
-              review:
-                "PANDAeCe delivered effective eCommerce enablement and software development solutions that helped streamline our operations. The team was professional and responsive.",
-            },
-            {
-              name: "Nikitha Harish",
-              rating: 5,
-              review:
-                "PANDAeCe provided thoughtful branding solutions that helped us build a distinctive and memorable brand identity.",
-            },
-            {
-              name: "Rakshitha K",
-              rating: 4,
-              review:
-                "PANDAeCe developed tailored ERP solutions that supported better operational efficiency and management. The team demonstrated professionalism and responsiveness.",
-            },
-            {
-              name: "Swarupa S",
-              rating: 5,
-              review:
-                "The team at PANDAeCe delivered creative and responsive support across our eCommerce and digital requirements.",
-            },
-            {
-              name: "Mamatha H K",
-              rating: 4,
-              review:
-                "PANDAeCe brought strategic thinking and practical expertise to our digital marketing efforts, helping improve online visibility and sales.",
-            },
-            {
-              name: "Kavipriya Paramasivam",
-              rating: 5,
-              review:
-                "PANDAeCe helped improve our business operations through solutions tailored to our requirements. The team was professional and collaborative.",
-            },
-          ])
-          .map((testimonial, i) => (
-            <article
-              className="testimonial-card testimonial-marquee-card"
-              key={`${testimonial.name}-${i}`}
-            >
-              <div className="review-card-header">
-                <div className="reviewer-avatar">
-                  {testimonial.name
-                    .split(" ")
-                    .map((part) => part[0])
-                    .join("")
-                    .slice(0, 2)}
-                </div>
 
-                <div className="reviewer-info">
-                  <strong>{testimonial.name}</strong>
-                  <span>Client review</span>
-                </div>
 
-                <span
-                  className="google-review-mark"
-                  aria-label="Review"
-                >
-                  G
+        <section className="faq-section" id="faq">
+          <div className="shell faq-container">
+            <div className="faq-section-heading">
+              <span className="faq-eyebrow">FAQs</span>
+              <h2>
+                Common Questions Business Owners Ask Us About{" "}
+                <span>Digital Marketing</span>
+              </h2>
+            </div>
+
+            <FaqList />
+          </div>
+        </section>
+
+
+
+
+        <section className="final-cta">
+          <div className="cta-glow" />
+
+          <div className="shell cta-inner">
+            {/* LEFT SIDE — CONTENT */}
+            <div className="final-cta-copy">
+              <Reveal>
+                <span className="eyebrow eyebrow-light">
+                  <span className="live-dot" />
+                  YOUR NEXT MOVE STARTS HERE
                 </span>
-              </div>
 
-              <div
-                className="review-stars"
-                aria-label={`${testimonial.rating} out of 5 stars`}
-              >
-                {"★".repeat(testimonial.rating)}
-                <span className="empty-stars">
-                  {"★".repeat(5 - testimonial.rating)}
+                <h2>
+                  Your Startup Has a Goal. Let&apos;s Build the{" "}
+                  <span className="final-cta-highlight">
+                    Marketing System
+                  </span>{" "}
+                  to Support It.
+                </h2>
+              </Reveal>
+
+              <Reveal delay={0.18}>
+                <p>
+                  Identify what&apos;s limiting your leads, conversions and marketing
+                  performance. Get a clear action plan to grow with confidence.
+                </p>
+
+                <Link href="#lead-form" className="button button-primary">
+                  Book Consultation, Get{" "}
+                  <span className="yellow-highlight">20% Off</span>
+                  <ArrowUpRight size={18} />
+                </Link>
+
+                <span className="cta-micro">
+                  <Check size={14} />
+                  A practical conversation. Clear next steps.
                 </span>
+              </Reveal>
+            </div>
+
+            {/* RIGHT SIDE — PANDA IMAGE */}
+            <div className="cta-panda-column">
+              <div className="cta-panda-decoration">
+                <Image
+                  src="/images/panda-hero.png"
+                  alt="PANDAeCe digital marketing panda mascot"
+                  width={1024}
+                  height={1024}
+                  className="hero-panda-image"
+                  sizes="(max-width: 768px) 90vw, 45vw"
+                />
               </div>
-
-              <blockquote>
-                &ldquo;{testimonial.review}&rdquo;
-              </blockquote>
-
-              <div className="review-card-footer">
-                <span className="review-source-dot" />
-                <span>Client feedback</span>
-              </div>
-            </article>
-          ))}
-      </div>
-    </div>
-  </div>
-</section>
-
-      
-
-
-
-<section className="faq-section" id="faq">
-  <div className="shell faq-container">
-    <div className="faq-section-heading">
-      <span className="faq-eyebrow">FAQs</span>
-      <h2>
-        Common Questions Business Owners Ask Us About{" "}
-        <span>Digital Marketing</span>
-      </h2>
-    </div>
-
-    <FaqList />
-  </div>
-</section>
-
-
-
-        
-<section className="final-cta">
-  <div className="cta-glow" />
-
-  <div className="shell cta-inner">
-    {/* LEFT SIDE — CONTENT */}
-    <div className="final-cta-copy">
-      <Reveal>
-        <span className="eyebrow eyebrow-light">
-          <span className="live-dot" />
-          YOUR NEXT MOVE STARTS HERE
-        </span>
-
-        <h2>
-          Your Startup Has a Goal. Let&apos;s Build the{" "}
-          <span className="final-cta-highlight">
-            Marketing System
-          </span>{" "}
-          to Support It.
-        </h2>
-      </Reveal>
-
-      <Reveal delay={0.18}>
-        <p>
-          Identify what&apos;s limiting your leads, conversions and marketing
-          performance. Get a clear action plan to grow with confidence.
-        </p>
-
-        <Link href="/booking" className="button button-primary">
-          Book Consultation, Get{" "}
-          <span className="yellow-highlight">20% Off</span>
-          <ArrowUpRight size={18} />
-        </Link>
-
-        <span className="cta-micro">
-          <Check size={14} />
-          A practical conversation. Clear next steps.
-        </span>
-      </Reveal>
-    </div>
-
-    {/* RIGHT SIDE — PANDA IMAGE */}
-    <div className="cta-panda-column">
-      <div className="cta-panda-decoration">
-        <Image
-          src="/images/panda-hero.png"
-          alt="PANDAeCe digital marketing panda mascot"
-          width={1024}
-          height={1024}
-          className="hero-panda-image"
-          sizes="(max-width: 768px) 90vw, 45vw"
-        />
-      </div>
-    </div>
-  </div>
-</section>
+            </div>
+          </div>
+        </section>
 
       </main>
 

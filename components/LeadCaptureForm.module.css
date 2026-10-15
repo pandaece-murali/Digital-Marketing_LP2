@@ -1,4 +1,3 @@
-
 .section {
   width: 100%;
   padding: 0;
@@ -337,6 +336,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .field input,
   .field select,
   .submitButton {
@@ -473,11 +473,13 @@
     font-size: 11px;
   }
 }
+
 .optional {
   color: #9eb2a2;
   font-size: 11px;
   font-weight: 400;
 }
+
 .fullWidth {
   grid-column: 1 / -1 !important;
   width: 100%;
@@ -485,12 +487,12 @@
 }
 
 /* Primary Goal: full width */
-.form > .field:has(select[name="goal"]) {
+.form>.field:has(select[name="goal"]) {
   grid-column: 1 / -1 !important;
   width: 100%;
 }
 
-.form > .field:has(select[name="goal"]) select {
+.form>.field:has(select[name="goal"]) select {
   width: 100%;
   max-width: none;
   box-sizing: border-box;
@@ -498,23 +500,23 @@
 
 /* Keep full-width fields on mobile too */
 @media (max-width: 600px) {
-  .form > .field:has(select[name="goal"]) {
+  .form>.field:has(select[name="goal"]) {
     grid-column: 1 / -1 !important;
   }
 }
 
 /* Center Primary Goal label and dropdown */
-.form > .field:has(select[name="goal"]) label {
-  justify-content: center;
-  text-align: center;
+.form>.field:has(select[name="goal"]) label {
+  justify-content: left;
+  text-align: left;
 }
 
-.form > .field:has(select[name="goal"]) select {
-  text-align: center;
-  text-align-last: center;
+.form>.field:has(select[name="goal"]) select {
+  text-align: left;
+  text-align-last: left;
 }
 
 /* Keep dropdown options readable */
-.form > .field:has(select[name="goal"]) select option {
+.form>.field:has(select[name="goal"]) select option {
   text-align: left;
 }

@@ -196,8 +196,7 @@ function getTagsForService(service: string) {
 
   return [
     "PANDAeCe - Website Form",
-    "Digital Marketing",
-    "Google Ads",
+    "Digital Marketing, Google Ads",
     ...(serviceTagMap[service]
       ? [serviceTagMap[service]]
       : []),

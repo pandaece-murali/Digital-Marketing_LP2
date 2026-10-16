@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -10,14 +9,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PANDAeCe | CPL-Focused Digital Marketing Services",
+  title: "PANDAeCe | Performance Marketing Agency",
   description:
-    "PANDAeCe helps business owners generate quality leads with Google Ads, Meta Ads, conversion-focused websites, CRM integration, and marketing automation.",
-  openGraph: {
-    title: "PANDAeCe | CPL-Focused Digital Marketing Services",
-    description:
-      "A connected growth system for business owners: ads, websites, CRM, and automation.",
-    type: "website",
+    "PANDAeCe helps startups attract qualified leads through performance marketing, Google Ads, Meta Ads, conversion-focused websites, and marketing automation.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
 };
 
@@ -28,8 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.variable}>
         {children}
+
+        <script
+          src="https://crm.pandaece.com/js/external-tracking.js"
+          data-tracking-id="tk_c8115cbbe8574c6eb5fee47615eb895c"
+        ></script>
       </body>
     </html>
   );

@@ -1884,6 +1884,28 @@ svg {
   gap: 7px;
 }
 
+.footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-legal a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-legal a:hover {
+  color: var(--lime);
+}
+
+.footer-legal-dot {
+  opacity: 0.5;
+  font-size: 8px;
+}
+
 /* Booking page */
 
 .booking-page {

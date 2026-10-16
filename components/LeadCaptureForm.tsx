@@ -173,7 +173,13 @@ export default function LeadCaptureForm() {
           </p>
         </div>
 
-        <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <form
+          id="lead-capture-form"
+          name="lead-capture-form"
+          className={styles.form}
+          onSubmit={handleSubmit}
+          noValidate
+        >
           <div className={styles.field}>
             <label htmlFor="name">
               <span className={styles.fieldIcon} aria-hidden="true">♙</span>
@@ -231,21 +237,21 @@ export default function LeadCaptureForm() {
             />
           </div>
           <div className={styles.field}>
-  <label htmlFor="website">
-    <span className={styles.fieldIcon} aria-hidden="true">↗</span>
-    Website <span className={styles.optional}>(Optional)</span>
-  </label>
+            <label htmlFor="websiteUrl">
+              <span className={styles.fieldIcon} aria-hidden="true">↗</span>
+              Website <span className={styles.optional}>(Optional)</span>
+            </label>
 
-  <input
-    id="website"
-    name="websiteUrl"
-    type="url"
-    placeholder="https://yourwebsite.com"
-    value={form.websiteUrl}
-    onChange={handleChange}
-    disabled={loading}
-  />
-</div>
+            <input
+              id="websiteUrl"
+              name="websiteUrl"
+              type="url"
+              placeholder="https://yourwebsite.com"
+              value={form.websiteUrl}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
           <div className={styles.field}>
             <label htmlFor="service">

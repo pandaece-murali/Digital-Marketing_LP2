@@ -70,6 +70,24 @@ export default function Footer() {
             © {new Date().getFullYear()} PANDAeCe. All rights reserved.
           </span>
 
+          <div className="footer-legal">
+            <Link
+              href="https://pandaece.com/terms-conditions/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Terms Of Services
+            </Link>
+            <span className="footer-legal-dot" aria-hidden="true">•</span>
+            <Link
+              href="https://pandaece.com/privacy-and-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+
           <span>
             <MapPin size={16} aria-hidden="true" />
             Built for ambitious businesses

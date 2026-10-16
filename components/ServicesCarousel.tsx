@@ -17,7 +17,7 @@ export default function ServicesCarousel() {
       {services.map((service, index) => {
         const Icon = service.icon;
         return (
-          <Reveal key={service.n} delay={index * 0.055} className="services-grid-item">
+          <Reveal key={service.n} delay={index * 0.055} className={`services-grid-item service-item-${index + 1}`}>
             <details className={`service-card ${index === 0 ? "service-featured" : ""}`}>
               <summary className="service-card-summary">
                 <div className="service-card-top">

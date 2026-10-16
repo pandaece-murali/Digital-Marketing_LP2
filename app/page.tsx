@@ -166,10 +166,7 @@ export default function Home() {
                     5 Core Digital Marketing Services. <span className="green-italic">One Connected Growth System</span>
                   </h2>
                 </div>
-                <p className="section-aside">
-                  Every service has a role. Every role connects to the same goal:
-                  turning attention into customers.
-                </p>
+
               </div>
             </Reveal>
 
@@ -203,7 +200,7 @@ export default function Home() {
                 { title: "Missed follow-ups:", text: "Interested prospects go cold because nobody contacts them at the right time.", icon: Bot },
                 { title: "Unclear performance:", text: "You struggle to understand which campaigns are contributing to business growth.", icon: ShieldCheck },
               ].map(({ title, text, icon: Icon }, index) => (
-                <Reveal key={title} delay={index * 0.06}>
+                <Reveal key={title} delay={index * 0.06} className={`problem-grid-item problem-item-${index + 1}`}>
                   <article className="problem-card">
                     <span className="problem-icon"><Icon size={20} aria-hidden="true" /></span>
                     <p><strong>{title}</strong> {text}</p>

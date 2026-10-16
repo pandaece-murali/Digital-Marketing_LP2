@@ -103,7 +103,7 @@ function isSameOrigin(request: NextRequest) {
 
     return Boolean(
       requestHost &&
-        originHost.toLowerCase() === requestHost.toLowerCase()
+      originHost.toLowerCase() === requestHost.toLowerCase()
     );
   } catch {
     return false;
@@ -197,6 +197,7 @@ function getTagsForService(service: string) {
   return [
     "PANDAeCe - Website Form",
     "Digital Marketing",
+    "Google Ads",
     ...(serviceTagMap[service]
       ? [serviceTagMap[service]]
       : []),
@@ -299,22 +300,6 @@ export async function POST(request: NextRequest) {
             phone: lead.phone,
             source,
             createNewIfDuplicateAllowed: false,
-            customFields: [
-              ...(lead.service
-                ? [{ key: "which_services_interested", field_value: lead.service }]
-                : []),
-              ...(lead.budget
-                ? [{ key: "monthly_marketing_budget", field_value: lead.budget }]
-                : []),
-              ...(lead.goal
-                ? [
-                    {
-                      key: "what_is_your_primary_goal_for_the_next_36_months",
-                      field_value: lead.goal,
-                    },
-                  ]
-                : []),
-            ],
           }),
           signal: AbortSignal.timeout(12000),
         }

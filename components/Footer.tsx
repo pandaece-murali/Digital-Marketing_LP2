@@ -53,11 +53,6 @@ export default function Footer() {
               </Link>
 
               <Link href="/#services">
-                <span className="footer-social-icons" aria-hidden="true">
-                  <Facebook size={15} />
-                  <Instagram size={15} />
-                  <Linkedin size={15} />
-                </span>
                 Marketing services
                 <ArrowUpRight size={15} aria-hidden="true" />
               </Link>
